@@ -1,15 +1,6 @@
 "use client";
 import { getToken } from "@/lib/auth";
-import { jwtDecode } from "jwt-decode";
-import React, { useEffect } from "react";
-
-interface JwtPayload {
-  sub: number;
-  username: string;
-  role: string;
-  exp: number;
-  iat: number;
-}
+import React from "react";
 
 export default function DashboardHome() {
   const token = getToken();
@@ -17,13 +8,14 @@ export default function DashboardHome() {
 
   if (token) {
     try {
-      const decoded = jwtDecode<JwtPayload>(token);
-
-      if (decoded.username) {
-        username = decoded.username;
-      }
+      // Extract payload from JWT manually
+      const payloadBase64 = token.split('.')[1];
+      const payloadJson = atob(payloadBase64);
+      const payload = JSON.parse(payloadJson);
+      if (payload.username) username = payload.username;
     } catch (e) {
       console.error("Token decoding failed:", e);
+      username = "Invalid Token";
     }
   }
 
